@@ -1,0 +1,29 @@
+package app
+
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
+const (
+	// ChainCoinType is the coin type as defined in SLIP44 (https://github.com/satoshilabs/slips/blob/master/slip-0044.md)
+	ChainCoinType = 118 // default Cosmos coin type
+)
+
+func init() {
+	// Set bond denom
+
+	sdk.DefaultBondDenom = "stake"
+
+	// Set address prefixes
+	accountPubKeyPrefix := AccountAddressPrefix + "pub"
+	validatorAddressPrefix := AccountAddressPrefix + "valoper"
+	validatorPubKeyPrefix := AccountAddressPrefix + "valoperpub"
+	consNodeAddressPrefix := AccountAddressPrefix + "valcons"
+	consNodePubKeyPrefix := AccountAddressPrefix + "valconspub"
+
+	// Set and seal config
+	config := sdk.GetConfig()
+	config.SetCoinType(ChainCoinType)
+	config.SetBech32PrefixForAccount(AccountAddressPrefix, accountPubKeyPrefix)
+	config.SetBech32PrefixForValidator(validatorAddressPrefix, validatorPubKeyPrefix)
+	config.SetBech32PrefixForConsensusNode(consNodeAddressPrefix, consNodePubKeyPrefix)
+	config.Seal()
+}
