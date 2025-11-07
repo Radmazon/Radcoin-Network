@@ -745,3 +745,9 @@ func MakeEncodingConfig() EncodingConfig {
 		Amino:             legacyAmino,
 	}
 }
+
+// RegisterIBC is a stub for IBC module registration
+// Since IBC doesn't support dependency injection yet, this is a placeholder
+func RegisterIBC(cdc codec.Codec) map[string]module.AppModuleBasic {
+	return make(map[string]module.AppModuleBasic)
+}
