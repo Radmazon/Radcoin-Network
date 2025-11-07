@@ -4,12 +4,12 @@ import (
 	"os"
 
 	"cosmossdk.io/client/v2/autocli"
-	"cosmossdk.io/core/address"
 	"cosmossdk.io/depinject"
 	"cosmossdk.io/log"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/codec"
+	authcodec "github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -33,7 +33,7 @@ func NewRootCmd() *cobra.Command {
 		depinject.Configs(app.AppConfig(),
 			depinject.Supply(
 				log.NewNopLogger(),
-				address.NewBech32Codec(app.AccountAddressPrefix),
+				authcodec.NewBech32Codec(app.AccountAddressPrefix),
 			),
 			depinject.Provide(
 				ProvideClientContext,
