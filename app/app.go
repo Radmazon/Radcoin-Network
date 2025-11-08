@@ -223,6 +223,12 @@ func New(
 		memKeys:           memKeys,
 	}
 
+	if err := app.RegisterStores(
+		keys[consensusparamtypes.StoreKey],
+	); err != nil {
+		panic(err)
+	}
+
 	app.ParamsKeeper = initParamsKeeper(
 		appCodec,
 		legacyAmino,
