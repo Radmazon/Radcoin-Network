@@ -223,11 +223,9 @@ func New(
 		memKeys:           memKeys,
 	}
 
-	if err := app.RegisterStores(
-		keys[consensusparamtypes.StoreKey],
-	); err != nil {
-		panic(err)
-	}
+	app.MountKVStores(keys)
+	app.MountTransientStores(tkeys)
+	app.MountMemoryStores(memKeys)
 
 	app.ParamsKeeper = initParamsKeeper(
 		appCodec,
