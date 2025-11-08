@@ -86,6 +86,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/cosmos/gogoproto/proto"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cast"
 )
@@ -185,7 +186,22 @@ func New(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *App {
-	interfaceRegistry := types.NewInterfaceRegistry()
+	accountAddrCodec := authcodec.NewBech32Codec(AccountAddressPrefix)
+	validatorAddrCodec := authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix())
+	consensusAddrCodec := authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix())
+
+	interfaceRegistry, err := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
+		ProtoFiles: proto.HybridResolver,
+		SigningOptions: types.SigningOptions{
+			AddressCodec:          accountAddrCodec,
+			ValidatorAddressCodec: validatorAddrCodec,
+			ConsensusAddressCodec: consensusAddrCodec,
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	appCodec := codec.NewProtoCodec(interfaceRegistry)
 	legacyAmino := codec.NewLegacyAmino()
 	txConfig := authtx.NewTxConfig(appCodec, authtx.DefaultSignModes)
@@ -247,7 +263,7 @@ func New(
 		runtime.NewKVStoreService(keys[authtypes.StoreKey]),
 		authtypes.ProtoBaseAccount,
 		maccPerms,
-		authcodec.NewBech32Codec(AccountAddressPrefix),
+		accountAddrCodec,
 		AccountAddressPrefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
@@ -267,8 +283,8 @@ func New(
 		app.AccountKeeper,
 		app.BankKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
-		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
+		validatorAddrCodec,
+		consensusAddrCodec,
 	)
 
 	app.MintKeeper = mintkeeper.NewKeeper(
@@ -728,7 +744,22 @@ type EncodingConfig struct {
 
 // MakeEncodingConfig creates an EncodingConfig for testing
 func MakeEncodingConfig() EncodingConfig {
-	interfaceRegistry := types.NewInterfaceRegistry()
+	accountAddrCodec := authcodec.NewBech32Codec(AccountAddressPrefix)
+	validatorAddrCodec := authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix())
+	consensusAddrCodec := authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix())
+
+	interfaceRegistry, err := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
+		ProtoFiles: proto.HybridResolver,
+		SigningOptions: types.SigningOptions{
+			AddressCodec:          accountAddrCodec,
+			ValidatorAddressCodec: validatorAddrCodec,
+			ConsensusAddressCodec: consensusAddrCodec,
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
 	appCodec := codec.NewProtoCodec(interfaceRegistry)
 	legacyAmino := codec.NewLegacyAmino()
 	txConfig := authtx.NewTxConfig(appCodec, authtx.DefaultSignModes)
